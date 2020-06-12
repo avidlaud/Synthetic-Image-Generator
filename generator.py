@@ -1,12 +1,9 @@
+''' Generates synthetic labeled image data '''
+
 import random
+import glob
 import matplotlib.pyplot as plt
 from PIL import Image
-
-I = Image.open('./data/foreground/kh.png')
-
-#plt.axis('off')
-#plt.imshow(I)
-#plt.show()
 
 def scale_image(image, width, height, maintain_ratio=True):
     ''' Resizes an image to a given size, can maintain aspect ratio '''
@@ -31,3 +28,17 @@ def overlay_image(image, background):
     height_bound = background_height - img_height
     background.paste(image, (random.randint(0, width_bound), random.randint(0, height_bound)), image)
     return background
+
+def main():
+    #Path to folder of images
+    IMAGES_PATH = ''
+    #Path to folder of backgrounds
+    BACKGROUNDS_PATH = ''
+    #Path to output
+    OUTPUT_PATH = ''
+
+    images = glob.glob(IMAGES_PATH)
+    backgrounds = glob.glob(BACKGROUNDS_PATH)
+
+
+if __name__ == "__main__": main()
