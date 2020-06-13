@@ -51,33 +51,49 @@ def overlay_image(image, background, image_class, file_name):
 def multi_overlay(images, background, image_classes, file_name):
     ''' Places multiple images on the background without overlap '''
     background_width, background_height = background.size
-    excluded_x = []
-    excluded_y = []
-    ###
-    #
-    #   USE TUPLES INSTEAD OF THIS
-    #
-    ###
-    #excluded_range = []
+    original_background = background.copy()
+    excluded_coord = []
+    excluded_dim = []
     for i, image in enumerate(images):
         img_width, img_height = image.size
         width_bound = background_width - img_width
         height_bound = background_height - img_height
-        if len(excluded_x) != 0:
-            allowed_width = [x for x in list(range(0, width_bound)) if x not in excluded_x and x+img_width not in excluded_x]
-            allowed_height = [y for y in list(range(0, height_bound)) if y not in excluded_y and y+img_height not in excluded_y]
-            print(excluded_x)
-            x_coord = random.choice(allowed_width)
-            y_coord = random.choice(allowed_height)
-            print("IF")
+        if len(excluded_coord) != 0:
+            bad_point = True
+            fail_counter = 0
+            while bad_point:
+                if fail_counter == 10:
+                    return multi_overlay(images, original_background, image_classes, file_name)
+                bad_point = False
+                x_coord = random.randint(0, width_bound)
+                y_coord = random.randint(0, height_bound)
+                #Key points: top-left, top-center, top-right, middle-left, middle-center, middle-right, bottom-left, bottom-center, bottom-right
+                key_points = [(x_coord, y_coord), (x_coord + (img_width/2), y_coord), (x_coord + img_width, y_coord),
+                                (x_coord, y_coord + (img_height/2)), (x_coord + (img_width/2), y_coord + (img_height/2)), (x_coord + img_width, y_coord + (img_height/2)),
+                                (x_coord, y_coord + img_height), (x_coord + (img_width/2), y_coord + img_height), (x_coord + img_width, y_coord + img_height)]
+                for j, (ex_x, ex_y) in enumerate(excluded_coord):
+                    ex_left = ex_x
+                    ex_right = ex_x + excluded_dim[j][0]
+                    ex_top = ex_y
+                    ex_bottom = ex_y + excluded_dim[j][1]
+                    for point in key_points:
+                        if point[0] > ex_left and point[0] < ex_right and point[1] > ex_top and point[1] < ex_bottom:
+                            bad_point = True
+                fail_counter += 1
         else:
             x_coord = random.randint(0, width_bound)
             y_coord = random.randint(0, height_bound)
-            print("ELSE")
-        excluded_x += list(range(x_coord, x_coord + img_width))
-        excluded_y += list(range(y_coord, y_coord + img_height))
+
+        if(draw_boxes):
+            draw = ImageDraw.Draw(background)
+            draw.rectangle(((x_coord, y_coord), (x_coord + img_width, y_coord + img_height)))
+
         background.paste(image, (x_coord, y_coord), image)
-        
+
+        #Add position to "bad" area
+        excluded_coord.append((x_coord, y_coord))
+        excluded_dim.append((img_width, img_height))
+
         #Get values for writing to file
         x_center = (x_coord + (img_width/2))/background_width
         y_center = (x_coord + (img_height/2))/background_height
@@ -121,10 +137,10 @@ def main():
     MIN_IMAGE_HEIGHT = 150
     MAX_IMAGE_HEIGHT = 250
 
-    MIN_TWO_IMAGE_WIDTH = 75
-    MAX_TWO_IMAGE_WIDTH = 125
-    MIN_TWO_IMAGE_HEIGHT = 75
-    MAX_TWO_IMAGE_HEIGHT = 125
+    MIN_TWO_IMAGE_WIDTH = 150
+    MAX_TWO_IMAGE_WIDTH = 250
+    MIN_TWO_IMAGE_HEIGHT = 150
+    MAX_TWO_IMAGE_HEIGHT = 250
 
     BACKGROUND_WIDTH = 512
     BACKGROUND_HEIGHT = 512
