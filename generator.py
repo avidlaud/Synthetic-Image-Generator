@@ -72,6 +72,14 @@ def main():
     RANDOM_BACKGROUND = False
     #Keep aspect ratio for transformed images
     MAINTAIN_ASPECT_RATIO = True
+    
+    MIN_IMAGE_WIDTH = 150
+    MAX_IMAGE_WIDTH = 250
+    MIN_IMAGE_HEIGHT = 150
+    MAX_IMAGE_HEIGHT = 250
+
+    BACKGROUND_WIDTH = 512
+    BACKGROUND_HEIGHT = 512
 
     images = glob.glob(IMAGES_PATH)
     backgrounds = glob.glob(BACKGROUNDS_PATH)
@@ -82,14 +90,18 @@ def main():
         image_class = os.path.splitext(os.path.basename(image_path))[0]
         original_image = Image.open(image_path)
         for background_path in backgrounds:
-            background = Image.open(background_path)
-            image = rotate_image(scale_image(original_image, 250, 200))
-            file_name = "output_" + '%06d'%(image_counter)
-            overlayed = overlay_image(image, background, image_class, OUTPUT_LABEL_PATH + file_name)
-            overlayed.save(OUTPUT_IMAGE_PATH + file_name + ".jpg")
-            image_counter += 1
-            plt.imshow(overlayed)
-            plt.show()
+            for i in range(NUM_IMAGES):
+                background = Image.open(background_path)
+                background = scale_image(background, BACKGROUND_WIDTH, BACKGROUND_HEIGHT)
+                image_width = random.randint(MIN_IMAGE_WIDTH, MAX_IMAGE_WIDTH)
+                image_height = random.randint(MIN_IMAGE_HEIGHT, MAX_IMAGE_HEIGHT)
+                image = rotate_image(scale_image(original_image, image_width, image_height))
+                file_name = "output_" + '%06d'%(image_counter)
+                overlayed = overlay_image(image, background, image_class, OUTPUT_LABEL_PATH + file_name)
+                overlayed.save(OUTPUT_IMAGE_PATH + file_name + ".jpg")
+                image_counter += 1
+                plt.imshow(overlayed)
+                plt.show()
 
 
 if __name__ == "__main__": main()
