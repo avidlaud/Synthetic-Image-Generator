@@ -127,9 +127,9 @@ def main():
     #Path to label folder
     OUTPUT_LABEL_PATH = 'output/labels/'
     #Number of images to generate per image per background
-    NUM_IMAGES = 0
+    NUM_IMAGES = 50
     #Number of 2-image outputs
-    NUM_TWO_IMAGES = 50
+    NUM_TWO_IMAGES = 10000
     #Randomly pick backgrounds
     RANDOM_BACKGROUND = False
     #Keep aspect ratio for transformed images
