@@ -26,3 +26,12 @@ The labels follow a commonly used labeling convention:
 
 where center_x, center_y, width, and height are from [0,1] as a proportion of the total image dimensions
 ```
+
+## Configuring
+
+Additional parameters can be adjusted:
+- Number of images to generate per input (single image)
+- Number of two-input images to generate
+- Maintain aspect ratio when scaling image - ON by default
+- Minimum and maximum image resolution
+- Final image resolution
