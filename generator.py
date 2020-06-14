@@ -54,6 +54,7 @@ def multi_overlay(images, background, image_classes, file_name):
     original_background = background.copy()
     excluded_coord = []
     excluded_dim = []
+    fail_counter = 0
     for i, image in enumerate(images):
         img_width, img_height = image.size
         width_bound = background_width - img_width
@@ -63,6 +64,8 @@ def multi_overlay(images, background, image_classes, file_name):
             fail_counter = 0
             while bad_point:
                 if fail_counter == 10:
+                    file_path = file_name + ".txt"
+                    open(file_path, 'w').close()
                     return multi_overlay(images, original_background, image_classes, file_name)
                 bad_point = False
                 x_coord = random.randint(0, width_bound)
@@ -96,7 +99,7 @@ def multi_overlay(images, background, image_classes, file_name):
 
         #Get values for writing to file
         x_center = (x_coord + (img_width/2))/background_width
-        y_center = (x_coord + (img_height/2))/background_height
+        y_center = (y_coord + (img_height/2))/background_height
         rel_width = img_width / background_width
         rel_height = img_height / background_height
         image_class = image_classes[i]
@@ -126,7 +129,7 @@ def main():
     #Number of images to generate per image per background
     NUM_IMAGES = 0
     #Number of 2-image outputs
-    NUM_TWO_IMAGES = 5000
+    NUM_TWO_IMAGES = 50
     #Randomly pick backgrounds
     RANDOM_BACKGROUND = False
     #Keep aspect ratio for transformed images
@@ -156,6 +159,8 @@ def main():
         original_image = Image.open(image_path)
         for background_path in backgrounds:
             for i in range(NUM_IMAGES):
+                if image_counter % 100 == 0:
+                    print("Working on image: " + str(image_counter))
                 background = Image.open(background_path)
                 background = scale_image(background, BACKGROUND_WIDTH, BACKGROUND_HEIGHT, MAINTAIN_ASPECT_RATIO)
                 image_width = random.randint(MIN_IMAGE_WIDTH, MAX_IMAGE_WIDTH)
@@ -165,11 +170,13 @@ def main():
                 overlayed = overlay_image(image, background, image_class, OUTPUT_LABEL_PATH + file_name)
                 overlayed.save(OUTPUT_IMAGE_PATH + file_name + ".jpg")
                 image_counter += 1
-                plt.imshow(overlayed)
-                plt.show()
+                # plt.imshow(overlayed)
+                # plt.show()
     
     #Two images per output
     for j in range(NUM_TWO_IMAGES):
+        if image_counter % 100 == 0:
+            print("Working on image: " + str(image_counter))
         choice1 = random.choice(images)
         choice2 = random.choice(images)
         image_class1 = os.path.splitext(os.path.basename(choice1))[0]
@@ -186,7 +193,7 @@ def main():
         overlayed = multi_overlay([image1, image2], background, [image_class1, image_class2], OUTPUT_LABEL_PATH + file_name)
         overlayed.save(OUTPUT_IMAGE_PATH + file_name + ".jpg")
         image_counter += 1
-        plt.imshow(overlayed)
-        plt.show()
+        # plt.imshow(overlayed)
+        # plt.show()
 
 if __name__ == "__main__": main()
